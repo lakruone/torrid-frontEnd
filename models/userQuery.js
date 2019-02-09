@@ -113,9 +113,26 @@ module.exports.productList = (catagoryID,callback) =>{
   });
 }
 
+module.exports.checkAvailability = (productName,amount, callback) =>{
+  const qry = "select qtyAvailable from product where productName=?";
+  pool.query(qry,[productName], (err,result) =>{
+    if (err){
+      return callback(err,null);
+    }else{
+      const qty =result[0].qtyAvailable;
+      if(qty<amount){
+        return callback(null,false);
+      }else{
+        return callback(null,true);
+      }
+    }
+  });
+}
+
 module.exports.addToCart = (userID,productName,price,amount,imgDetail, callback) => {
   const qry1 = "select cartID from cart where userID=? AND productName=?";
   const qry2 = "insert into cart(userID,productName,totalPrice,amount,imgDetail) values(?,?,?,?,?) ";
+  const qry3 = "update product set qtyAvailable=qtyAvailable-? ,purchaseAmount=purchaseAmount+? where productName=?";
   const totalPrice =price*amount;
 
     pool.query(qry1,[userID,productName],(err,result1)=>{
@@ -128,10 +145,15 @@ module.exports.addToCart = (userID,productName,price,amount,imgDetail, callback)
             return callback(err,null);
           }
           else{
-            return callback(null,true);
+            pool.query(qry3,[amount,amount,productName],(err,result)=>{
+              if(err){
+                return callback(err,null);
+              }else{
+                return callback(null,true);
+              }
+            });
           }
         });
-
       }else{
         return callback(null,false); //item already added to the cart
       }

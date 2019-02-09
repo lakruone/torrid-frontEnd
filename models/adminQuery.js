@@ -15,9 +15,9 @@ module.exports.adminDetails = (callback) =>{
 
 module.exports.editAdmin = (firstName,lastName,email,password,address,mobileNo, callback) => {
 
-  const qry = "update admin set firstName=?,lastName=?,email=?,password=?,address=?,mobileNo=? where adminID=1 ";
+  const qry = "update admin set firstName=?,lastName=?,password=?,address=?,mobileNo=? where adminID=1 ";
 
-  pool.query(qry,[firstName,lastName,email,password,address,mobileNo],(err,result) => {
+  pool.query(qry,[firstName,lastName,password,address,mobileNo],(err,result) => {
     if (err){
       return callback(err,null);
     }

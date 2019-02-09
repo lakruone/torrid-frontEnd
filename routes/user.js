@@ -209,16 +209,26 @@ router.post('/addCart',Token.verifyToken,(req,res) =>{
       const amount = req.body.amount;
       const imgDetail = "imageDetails"; //req.body.imgDetail;
 
-      User.addToCart(userID,productName,price,amount,imgDetail, (err,result) =>{
+      User.checkAvailability(productName,amount, (err,result)=>{
         if(err){
           console.log(err);
         }
         if(result==true){
-          //console.log(result);
-        return  res.status(200).json({message:"item added to cart succesfully"});
-      }else{
-        return  res.status(400).json({message:"item already added to your cart"});
-      }
+          //add to cart
+          User.addToCart(userID,productName,price,amount,imgDetail, (err,result) =>{
+            if(err){
+              console.log(err);
+            }
+            if(result==true){
+              //console.log(result);
+            return  res.status(200).json({message:"item added to cart succesfully"});
+          }else{
+            return  res.status(400).json({message:"item already added to your cart"});
+          }
+          });
+        }else{
+          return res.status(403).json({message:"Not Available in the store"})
+        }
       });
     }
   });
@@ -299,7 +309,7 @@ router.post('/pay/:id',Token.verifyToken,(req,res) =>{
       const userID = decodeData.userData.userID;
       const cardNumber =req.body.cardNumber;
       const expDate = req.body.expDate;
-      
+
       User.payment(cartID,userID,cardNumber,expDate, (err,result) =>{
         if(err){
           console.log(err);

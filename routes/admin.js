@@ -138,7 +138,8 @@ router.post('/addProduct/:id',Token.verifyToken,(req,res) =>{
       const price = req.body.price;
       const qtyAvailable = req.body.qtyAvailable;
       const description = req.body.description;
-      const imgDetail = "imageDetails";
+      const imgDetail = req.body.imgDetail;
+      console.log(imgDetail);
 
       User.saveProduct(catagoryID,productName,price,qtyAvailable,description,imgDetail, (err,result)=>{
         if(err){
