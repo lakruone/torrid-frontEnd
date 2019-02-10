@@ -63,7 +63,7 @@ module.exports.saveCatagory = (catagoryName, callback) => {
 }
 
 module.exports.productList = (catagoryID,callback) =>{
-  const qry = "select productID,productName,price,qtyAvailable,purchaseAmount,description from product where catagoryID=?";
+  const qry = "select productID,productName,price,qtyAvailable,purchaseAmount,description,imgDetail from product where catagoryID=?";
   pool.query(qry,[catagoryID], (err,result) =>{
     if (err){
       return callback(err,null);
@@ -73,7 +73,7 @@ module.exports.productList = (catagoryID,callback) =>{
   });
 }
 
-module.exports.saveProduct = (catagoryID,productName,price,qtyAvailable,description,imgDetail, callback) => {
+module.exports.saveProduct = (catagoryID,productName,price,qtyAvailable,description, callback) => {
 
   const qry1 = "select productID from product where productName=? ";
   const qry2 = "insert into product(catagoryID,productName,price,qtyAvailable,description) values(?,?,?,?,?)"
@@ -97,6 +97,20 @@ module.exports.saveProduct = (catagoryID,productName,price,qtyAvailable,descript
   });
 }
 
+module.exports.saveImage = (imgDetail,productID, callback) => {
+
+  const qry = "update product set imgDetail=? where productID=? ";
+
+  pool.query(qry,[imgDetail,productID],(err,result) => {
+    if (err){
+      return callback(err,null);
+    }
+    else{
+      return callback(null,true);
+    }
+  });
+}
+
 module.exports.getProduct = (productID, callback) =>{
   const qry = "select productName,price,description from product where productID=?";
   pool.query(qry,[productID], (err,result) =>{
@@ -109,7 +123,7 @@ module.exports.getProduct = (productID, callback) =>{
   });
 }
 
-module.exports.editProduct = (productID,addQty,productName,price,description,imgDetail, callback) => {
+module.exports.editProduct = (productID,addQty,productName,price,description, callback) => {
 
   const qry = "update product set qtyAvailable=qtyAvailable +?,productName=?,price=?,description=? where productID=? ";
 

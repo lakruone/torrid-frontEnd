@@ -117,7 +117,7 @@ router.get('/products/:id',Token.verifyToken,(req,res) =>{
           console.log(err);
         }
         if(result){
-          console.log(result);
+        //  console.log(result);
         return  res.status(200).json({result});
 
         }
@@ -138,10 +138,10 @@ router.post('/addProduct/:id',Token.verifyToken,(req,res) =>{
       const price = req.body.price;
       const qtyAvailable = req.body.qtyAvailable;
       const description = req.body.description;
-      const imgDetail = req.body.imgDetail;
-      console.log(imgDetail);
+    //  const imgDetail = req.body.imgDetail;
+    //  console.log(imgDetail);
 
-      User.saveProduct(catagoryID,productName,price,qtyAvailable,description,imgDetail, (err,result)=>{
+      User.saveProduct(catagoryID,productName,price,qtyAvailable,description, (err,result)=>{
         if(err){
           console.log(err);
         }
@@ -149,6 +149,28 @@ router.post('/addProduct/:id',Token.verifyToken,(req,res) =>{
             return res.status(400).json({message:"product already exist"});
         }else{
           return res.status(200).json({message:"product added succesfully"});
+        }
+      })
+    }
+  });
+});
+
+router.post('/changeImage/:id',Token.verifyToken,(req,res) =>{
+  jwt.verify(req.token, 'mySecret', (err, decodeData) =>{
+    if(err){
+
+      res.status(403).json({data:"forbidden"})
+    }else{
+      const productID = req.params.id;
+
+      const imgDetail = req.body.imgDetail;
+      console.log(imgDetail);
+
+      User.saveImage(imgDetail,productID, (err,result)=>{
+        if(err){
+          console.log(err);
+        }else{
+          return res.status(200).json({message:"Image saved succesfully"});
         }
       })
     }
@@ -190,10 +212,10 @@ router.put("/editProduct/:id",Token.verifyToken,(req,res) => {
       const productName = req.body.productName;
       const price = req.body.price;
       const description = req.body.description;
-      const imgDetail =  "image details"   //req.body.imgDetail;
+    //  const imgDetail =  "image details"   //req.body.imgDetail;
 
 
-      User.editProduct(productID,addQty,productName,price,description,imgDetail, (err,result)=>{
+      User.editProduct(productID,addQty,productName,price,description, (err,result)=>{
         if(err){
           console.log(err);
         }else{
@@ -229,14 +251,14 @@ router.get('/feedback/:id',Token.verifyToken,(req,res) =>{
   });
 });
 
-//delete product  ---(admin/deleteProduct/:id)
-router.get('/deleteProduct/:id',Token.verifyToken,(req,res) =>{
+//delete product  ---(admin/deleteProduct)
+router.post('/deleteProduct',Token.verifyToken,(req,res) =>{
   jwt.verify(req.token, 'mySecret', (err, decodeData) =>{
     if(err){
       res.status(403).json({data:"forbidden"})
     }else{
-      const productID = req.params.id;
-      //console.log(productID);
+      const productID = req.body.productID;
+      console.log(productID);
       User.deleteProduct(productID,(err,result) =>{
         if(err){
           console.log(err);

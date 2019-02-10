@@ -113,7 +113,7 @@ router.get('/home',Token.verifyToken,(req,res) =>{
           }else{
             //console.log(result);
             result[0].userName=firstName;
-            console.log(result);
+            //console.log(result);
             return res.status(200).json({result}); //first name is sent along with result[0] catagory
           }
         });
@@ -128,15 +128,16 @@ router.get('/profile',Token.verifyToken,(req,res) =>{
       if(err){
         res.status(403).json({data:"forbidden"})
       }else{
-        const firstName = decodeData.userData.firstName;
-        const lastName = decodeData.userData.lastName;
-        const email = decodeData.userData.email;
-        const password = decodeData.userData.password;
-        const address = decodeData.userData.address;
-        const mobileNo = decodeData.userData.mobileNo;
+        const userID = decodeData.userData.userID;
 
-      return  res.status(200).json({firstName,lastName,email,password,address,mobileNo});
-
+        User.userDetails(userID, (err,result)=>{
+          if(err){
+            console.log(err);
+          }else{
+          //  console.log(result);
+          return  res.status(200).json({result});
+          }
+        });
       }
   });
 });
@@ -153,7 +154,7 @@ router.put('/profile',Token.verifyToken,(req,res) =>{
           var password = req.body.password;
           const address = req.body.address;
           const mobileNo = req.body.mobileNo;
-
+          console.log(firstName);
           bcrypt.genSalt(10,(err,salt) =>{
             bcrypt.hash(password,salt, (err,hash) =>{
               if(err) throw err;
@@ -187,7 +188,7 @@ router.get('/products/:id',Token.verifyToken,(req,res) =>{
           console.log(err);
         }
         if(result){
-          console.log(result);
+        //  console.log(result);
         return  res.status(200).json({result});
 
         }
@@ -197,39 +198,53 @@ router.get('/products/:id',Token.verifyToken,(req,res) =>{
 });
 
 //add item to cart ---(user/addCart/:id)
-router.post('/addCart',Token.verifyToken,(req,res) =>{
+router.post('/addCart/:id',Token.verifyToken,(req,res) =>{
   jwt.verify(req.token, 'mySecret', (err, decodeData) =>{
     if(err){
 
       res.status(403).json({data:"forbidden"})
     }else{
       const userID = decodeData.userData.userID;
-      const productName = req.body.productName;
-      const price = req.body.price;
+      const productName = req.params.id;
       const amount = req.body.amount;
-      const imgDetail = "imageDetails"; //req.body.imgDetail;
 
-      User.checkAvailability(productName,amount, (err,result)=>{
+      console.log(productName);
+      console.log(amount);
+
+      User.getReqProduct(productName, (err,result1)=>{
         if(err){
           console.log(err);
-        }
-        if(result==true){
-          //add to cart
-          User.addToCart(userID,productName,price,amount,imgDetail, (err,result) =>{
+        }else{
+          const price=result1.price;
+          const imgDetail=result1.imgDetail;
+
+          User.checkAvailability(productName,amount, (err,result2)=>{
             if(err){
               console.log(err);
             }
-            if(result==true){
-              //console.log(result);
-            return  res.status(200).json({message:"item added to cart succesfully"});
-          }else{
-            return  res.status(400).json({message:"item already added to your cart"});
-          }
+            if(result2==true){
+              //add to cart
+              User.addToCart(userID,productName,price,amount,imgDetail, (err,result3) =>{
+                if(err){
+                  console.log(err);
+                }
+                if(result3==true){
+                  //console.log(result);
+                return  res.status(200).json({message:"item added to cart succesfully"});
+              }else{
+                return  res.status(400).json({message:"item already added to your cart"});
+              }
+              });
+            }else{
+              return res.status(403).json({message:"Not Available in the store"})
+            }
           });
-        }else{
-          return res.status(403).json({message:"Not Available in the store"})
+
+
         }
       });
+
+
     }
   });
 });
@@ -243,7 +258,7 @@ router.post('/feedback/:id',Token.verifyToken,(req,res) =>{
       const productID = req.params.id;
       const customerName = decodeData.userData.firstName;
       const comment =req.body.comment;
-
+      console.log(customerName);
         User.addFeedback(productID,customerName,comment, (err,result)=>{
           if(err){
             console.log(err);
@@ -269,7 +284,7 @@ router.get('/viewCart',Token.verifyToken,(req,res) =>{
         if(err){
           console.log(err);
         }else{
-          console.log(result);
+        //  console.log(result);
           return res.status(200).json({result});
         }
       });
@@ -277,14 +292,14 @@ router.get('/viewCart',Token.verifyToken,(req,res) =>{
   });
 });
 
-//delete cartItem id=cartID --(user//deleteCart/:id)
-router.get('/deleteCart/:id',Token.verifyToken,(req,res) =>{
+//delete cartItem  --(user//deleteCart/:id)
+router.post('/deleteCart',Token.verifyToken,(req,res) =>{
   jwt.verify(req.token, 'mySecret', (err, decodeData) =>{
     if(err){
       res.status(403).json({data:"forbidden"})
     }else{
-      const cartID = req.params.id;
-      //console.log(productID);
+      const cartID = req.body.cartID;
+      console.log("inside delete cart");
       User.deleteCartItem(cartID,(err,result) =>{
         if(err){
           console.log(err);

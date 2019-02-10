@@ -89,6 +89,18 @@ module.exports.getCatagories =(callback) =>{
   });
 }
 
+module.exports.userDetails = (userID, callback) =>{
+  const qry = "select firstName, lastName,email,password,address,mobileNo from user where userID=?";
+  pool.query(qry,[userID], (err,result) =>{
+    if (err){
+      return callback(err,null);
+    }
+    if(result){
+      return callback(null,result[0]);
+    }
+  });
+}
+
 module.exports.editUser = (userID,firstName,lastName,password,address,mobileNo, callback) => {
   const qry = "update user set firstName=?,lastName=?,password=?,address=?,mobileNo=? where userID=? ";
 
@@ -103,7 +115,7 @@ module.exports.editUser = (userID,firstName,lastName,password,address,mobileNo, 
 }
 
 module.exports.productList = (catagoryID,callback) =>{
-  const qry = "select productID,productName,price,description from product where catagoryID=?";
+  const qry = "select productID,productName,price,description,imgDetail from product where catagoryID=?";
   pool.query(qry,[catagoryID], (err,result) =>{
     if (err){
       return callback(err,null);
@@ -158,6 +170,19 @@ module.exports.addToCart = (userID,productName,price,amount,imgDetail, callback)
         return callback(null,false); //item already added to the cart
       }
     });
+}
+
+module.exports.getReqProduct =(productName, callback) =>{
+  const qry = "select price,imgDetail from product where productName=?";
+
+  pool.query(qry,[productName], (err,result) => {
+    if (err){
+      return callback(err,null);
+    }else{
+      return callback(null,result[0]);
+    }
+  });
+
 }
 
 module.exports.addFeedback =(productID,customerName,comment, callback) =>{
